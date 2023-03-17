@@ -12,18 +12,6 @@ public abstract class Enemy : MonoBehaviour
     private int _health;
     private float _correctTime = 0;
 
-    protected abstract void Move();
-
-    public void TakeDamage(int damage)
-    {
-        _health -= damage;
-
-        if (_health <= 0)
-        {
-            Die();
-        }
-    }
-
     private void Start()
     {
         _health = _maxHealth;
@@ -35,17 +23,29 @@ public abstract class Enemy : MonoBehaviour
         _correctTime -= Time.deltaTime;
     }
 
-    private void Die()
-    {
-        Destroy(gameObject);
-        Instantiate(_coin, transform.position, Quaternion.identity);
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (_correctTime <= 0 && collision.collider.TryGetComponent<Player>(out Player player))
         {
             player.TakeDamage(_damage);
         }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        _health -= damage;
+
+        if (_health <= 0)
+        {
+            Die();
+        }
+    }
+
+    protected abstract void Move();
+
+    private void Die()
+    {
+        Destroy(gameObject);
+        Instantiate(_coin, transform.position, Quaternion.identity);
     }
 }

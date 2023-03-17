@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
+[RequireComponent(typeof(Rigidbody2D), typeof(Animator),typeof(HashPlayerAnimation))]
 public class PlayerMovment : MonoBehaviour
 {
     [SerializeField] private Player _player;
@@ -10,12 +10,24 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] private float _spead;
     [SerializeField] private float _jumpForce;
 
+    private HashPlayerAnimation _hashAnimation;
     private PlayerInput _input;
     private Rigidbody2D _rigidbody;
     private Animator _animator;
     private bool _isGrounded;
     private bool _isFacingRight = true;
     private float _direction;
+
+    private void Awake()
+    {
+        _hashAnimation = GetComponent<HashPlayerAnimation>();
+        _animator = GetComponent<Animator>();
+        _rigidbody = GetComponent<Rigidbody2D>();
+        _input = new PlayerInput();
+        _input.Enable();
+
+        _input.Player.Jump.performed += cxt => OnJump();
+    }
 
     private void OnEnable()
     {
@@ -29,14 +41,9 @@ public class PlayerMovment : MonoBehaviour
         _checkCollider.InflictDamage -= JumpAfterDealingDamage;
     }
 
-    private void Awake()
+    private void FixedUpdate()
     {
-        _animator = GetComponent<Animator>();
-        _rigidbody = GetComponent<Rigidbody2D>();
-        _input = new PlayerInput();
-        _input.Enable();
-
-        _input.Player.Jump.performed += cxt => OnJump();
+        Move(_direction);
     }
 
     private void Update()
@@ -45,14 +52,9 @@ public class PlayerMovment : MonoBehaviour
         ControlTheFallAnimation();
     }
 
-    private void FixedUpdate()
-    {
-        Move(_direction);
-    }
-
     private void Move(float direction)
     {
-        _animator.SetFloat("Speed", Mathf.Abs(direction));
+        _animator.SetFloat(_hashAnimation.SpeedHash, Mathf.Abs(direction));
         _rigidbody.velocity = new Vector2(_spead * _direction, _rigidbody.velocity.y);
 
         if (_isFacingRight && direction < 0 || _isFacingRight == false && direction > 0)
@@ -80,12 +82,12 @@ public class PlayerMovment : MonoBehaviour
         if (_rigidbody.velocity.y != 0)
         {
             _isGrounded = false;
-            _animator.SetBool("IsJumping", true);
-            _animator.SetFloat("RBVilocityY", _rigidbody.velocity.y);
+            _animator.SetBool(_hashAnimation.IsJumpingHash, true);
+            _animator.SetFloat(_hashAnimation.RBVilocityYHash, _rigidbody.velocity.y);
         }
         else
         {
-            _animator.SetBool("IsJumping", false);
+            _animator.SetBool(_hashAnimation.IsJumpingHash, false);
             _isGrounded = true;
         }
     }

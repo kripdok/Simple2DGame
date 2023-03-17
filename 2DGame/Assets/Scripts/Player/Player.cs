@@ -14,6 +14,13 @@ public class Player : MonoBehaviour
     private int _health;
     private int _point = 0;
 
+    private void Start()
+    {
+        _health = _maxHialth;
+        _textHealth.text = _health.ToString();
+        _textPoint.text = _point.ToString();
+    }
+
     public void TakeDamage(int damage)
     {
         _health -= damage;
@@ -29,13 +36,6 @@ public class Player : MonoBehaviour
     public void AddPoints(int point)
     {
         _point += point;
-        _textPoint.text = _point.ToString();
-    }
-
-    private void Start()
-    {
-        _health = _maxHialth;
-        _textHealth.text = _health.ToString();
         _textPoint.text = _point.ToString();
     }
 

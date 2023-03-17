@@ -1,22 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Animator),typeof(HashEnemyAnimation))]
 public class MonsterPatrol : Enemy
 {
     [SerializeField] private List<Transform> _points = new List<Transform>();
     [SerializeField] private float _spead;
 
+    private HashEnemyAnimation _hashAnimation;
     private Animator _animator;
     private bool _isFacingRight = true;
+    private float _pointDistance = 0.2f;
     private int _indexPoint;
+
+    private void Start()
+    {
+        _hashAnimation = GetComponent<HashEnemyAnimation>();
+        _animator = GetComponent<Animator>();
+        _indexPoint = 0;
+    }
+
+    private void Update()
+    {
+        Move();
+    }
 
     protected override void Move()
     {
-        _animator.SetFloat("Speed", Mathf.Abs(transform.position.x));
+        _animator.SetFloat(_hashAnimation.SpeedHash, Mathf.Abs(transform.position.x));
         transform.position = Vector2.MoveTowards(transform.position, _points[_indexPoint].position, _spead * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, _points[_indexPoint].position) < 0.2f)
+        if (Vector2.Distance(transform.position, _points[_indexPoint].position) < _pointDistance)
         {
             ChangeThePoint();
 
@@ -25,17 +39,6 @@ public class MonsterPatrol : Enemy
                 Flip();
             }
         }
-    }
-
-    private void Start()
-    {
-        _animator = GetComponent<Animator>();
-        _indexPoint = 0;
-    }
-
-    private void Update()
-    {
-        Move();
     }
 
     private void ChangeThePoint()
